@@ -3,45 +3,25 @@ package com.example.trainingcompose
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.trainingcompose.ui.theme.TrainingComposeTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import com.example.trainingcompose.data.remote.RetrofitClient
+import com.example.trainingcompose.data.repository.WeatherRepositoryImpl
+import com.example.trainingcompose.ui.weatherList.WeatherScreen
+import com.example.trainingcompose.ui.weatherList.WeatherViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        val weatherApi = RetrofitClient.weatherApi
+        val repository = WeatherRepositoryImpl(weatherApi)
+        val viewModel = WeatherViewModel(repository)
         setContent {
-            TrainingComposeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            MaterialTheme {
+                Surface {
+                    WeatherScreen(viewModel)
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TrainingComposeTheme {
-        Greeting("Android")
     }
 }
