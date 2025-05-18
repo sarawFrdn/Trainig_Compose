@@ -1,4 +1,4 @@
-package com.example.trainingcompose.data.model.entity
+package com.example.trainingcompose.domain.entity
 
 data class WeatherEntity(
     val temperature: Float,

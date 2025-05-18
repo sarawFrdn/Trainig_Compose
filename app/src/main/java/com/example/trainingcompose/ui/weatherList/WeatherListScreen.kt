@@ -7,8 +7,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.trainingcompose.data.model.entity.WeatherEntity
-
+import com.example.trainingcompose.domain.entity.WeatherEntity
+import com.example.trainingcompose.data.model.state.WeatherUiState
 
 @Composable
 fun WeatherScreen(viewModel: WeatherViewModel) {
@@ -28,7 +28,7 @@ fun WeatherScreen(viewModel: WeatherViewModel) {
             onValueChange = { latitude = it },
             label = { androidx.compose.material3.Text("Latitude") },
             modifier = Modifier.fillMaxWidth(),
-            isError = state.inputError?.contains("Latitude") == true
+            isError = state is WeatherUiState.Error && state.message.contains("Latitude")
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -38,7 +38,7 @@ fun WeatherScreen(viewModel: WeatherViewModel) {
             onValueChange = { longitude = it },
             label = { androidx.compose.material3.Text("Longitude") },
             modifier = Modifier.fillMaxWidth(),
-            isError = state.inputError?.contains("Longitude") == true
+            isError = state is WeatherUiState.Error && state.message.contains("Longitude")
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -47,35 +47,27 @@ fun WeatherScreen(viewModel: WeatherViewModel) {
             onClick = { viewModel.handleIntent(WeatherIntent.FetchWeather(latitude, longitude)) },
             modifier = Modifier.fillMaxWidth()
         ) {
-          Text("Get Weather")
+            androidx.compose.material3.Text("Get Weather")
         }
         Spacer(modifier = Modifier.height(16.dp))
 
         // Display state
-        when {
-            state.isLoading -> {
+        when (state) {
+            is WeatherUiState.Loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             }
-
-            state.inputError != null -> {
+            is WeatherUiState.Error -> {
                Text(
-                    text = state.inputError,
+                    text = state.message,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }
-
-            state.error != null -> {
-                androidx.compose.material3.Text(
-                    text = "Error: ${state.error}",
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
+            is WeatherUiState.Success -> {
+                WeatherItem(state.data)
             }
 
-            state.weather != null -> {
-                WeatherItem(state.weather)
-            }
+            else -> {}
         }
     }
 }
@@ -89,22 +81,20 @@ fun WeatherItem(weather: WeatherEntity) {
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
+            androidx.compose.material3.Text(
                 text = "Temperature: ${weather.temperature}°C",
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
+            androidx.compose.material3.Text(
                 text = "Humidity: ${weather.humidity}%",
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
+            androidx.compose.material3.Text(
                 text = "Wind Speed: ${weather.windSpeed} km/h",
                 style = MaterialTheme.typography.bodyMedium
             )
         }
     }
 }
-
-
